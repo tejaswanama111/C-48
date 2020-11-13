@@ -13,6 +13,7 @@ var monster, monster1;
 var lifeLost, lifeGone;
 var invisibleBlock, invisibleBlockGroup;
 var bullet, bulletImg;
+var reset, resetImg;
 
 function preload(){
  backgroundImg = loadImage("image/bg.jpg");
@@ -25,6 +26,7 @@ function preload(){
  lifeGone = loadSound("lifeGone.wav");
  monster1 = loadAnimation("player/rock.png");
  bulletImg = loadImage("Bullet000.png");
+ resetImg = loadImage("image/restart.jpg");
 }
 
 function setup(){
@@ -49,6 +51,11 @@ function setup(){
   player = createSprite(70, 574);
   player.addImage("player", playerImg);
   player.scale = 0.2;
+
+  reset = createSprite(570, 380);
+  reset.scale = 0.3;
+  reset.addImage("reset", resetImg);
+ 
   
   obstacleGroup = new Group();
   invisibleBlockGroup = new Group();
@@ -69,6 +76,8 @@ function draw(){
   text("Score : " + score, 250, 70);
  
    if(gameState === PLAY){
+    reset.visible = false;
+    player.visible=true;
     if(keyDown("RIGHT_ARROW")) {
       player.addAnimation("player", playerRunning);
       player.x = player.x + 7;
@@ -81,12 +90,12 @@ function draw(){
   
   if(keyDown("UP_ARROW")){
     player.addAnimation("player", playerJump);
-    player.y = player.y - 6;
+    player.y = player.y - 7;
   }
   
   if(keyDown("DOWN_ARROW")){
     player.addAnimation("player", playerRunning);
-    player.y = player.y + 6;
+    player.y = player.y + 7;
   }
 
   player.bounceOff(obstacleGroup);
@@ -124,10 +133,10 @@ function draw(){
     enemyGroup.destroyEach();
     bulletGroup.destroyEach();
   }
-
+  
   Enemy();
   createObstacle();
-  drawSprites();
+  
    }
 
   if(gameState === END){
@@ -135,9 +144,20 @@ function draw(){
       noStroke();
       textSize(40);
       fill("Black");
-      text("GAME OVER!!", 570, 327.5);
+      text("GAME OVER!!", 570, 280);
+      reset.visible = true;
+      if(mousePressedOver(reset)){
+        gameState = PLAY;
+        life = 5;
+        score =0;
+      }
+      enemyGroup.destroyEach();
+      bulletGroup.destroyEach();
+      invisibleBlockGroup.destroyEach();
+      obstacleGroup.destroyEach();
+      player.visible=false;
   }
-
+  drawSprites();
 }
 
 function createObstacle(){
@@ -154,8 +174,8 @@ function createObstacle(){
     invisibleBlock.x = obstacle.x;
     invisibleBlock.velocityY = (3+(score/10));
     invisibleBlock.lifetime = 225;
-    invisibleBlock.debug = false;
     invisibleBlockGroup.add(invisibleBlock);
+    invisibleBlock.visible = false;
     
     obstacleGroup.add(obstacle);
   }
@@ -171,13 +191,13 @@ function Enemy() {
   if(World.frameCount%200===0) {
     monster = createSprite(600,200,20,20);
     monster.addAnimation("moving", monster1);
-    monster.y = Math.round(random(10,500));   
+    monster.y = Math.round(random(0,653));   
     
     position = Math.round(random(1,2));
     
     if(position==1)
     {
-      monster.x=600;
+      monster.x=1350;
       monster.velocityX = -(8+(score/10));
     }
     else
@@ -204,15 +224,15 @@ function createBullets(){
   bullet = createSprite(200, 200);
   bullet.x = player.x;
   bullet.y = player.y;
-  bullet.velocityX = 5;
+  bullet.velocityX = (3+(score/5));
   bullet.addImage("bullet", bulletImg);
   bullet.scale = 0.1;
   bulletGroup.add(bullet);
   if(keyDown("RIGHT_ARROW")){
-    bullet.velocityX = 5;
+    bullet.velocityX = 20;
   }
   if(keyDown("LEFT_ARROW")){
-    bullet.velocityX = -5;
+    bullet.velocityX = -20;
   }
   
 }
